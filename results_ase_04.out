@@ -1,0 +1,41 @@
+============================================================
+Equation of State: Silicon Bulk Modulus
+============================================================
+
+Testing 7 lattice constants from 5.232 to 5.668 Å
+
+Calculation 1/7: a = 5.2320 Å ... V = 35.80 Å³, E = -10.6284 eV
+Calculation 2/7: a = 5.3047 Å ... V = 37.32 Å³, E = -10.7479 eV
+Calculation 3/7: a = 5.3773 Å ... V = 38.87 Å³, E = -10.8193 eV
+Calculation 4/7: a = 5.4500 Å ... V = 40.47 Å³, E = -10.8483 eV
+Calculation 5/7: a = 5.5227 Å ... V = 42.11 Å³, E = -10.8399 eV
+Calculation 6/7: a = 5.5953 Å ... V = 43.79 Å³, E = -10.7989 eV
+Calculation 7/7: a = 5.6680 Å ... V = 45.52 Å³, E = -10.7295 eV
+
+============================================================
+Equation of State Fitting
+============================================================
+
+Birch-Murnaghan Equation of State Fit:
+  Equilibrium volume: V₀ = 40.893 Å³
+  Equilibrium energy: E₀ = -10.849449 eV
+  Bulk modulus: B = 88.6 GPa
+  Equilibrium lattice constant: a = 5.4689 Å
+
+Comparison with experiment:
+  Lattice constant: 5.469 Å (calc) vs 5.43 Å (exp) [+0.7%]
+  Bulk modulus: 89 GPa (calc) vs 99 GPa (exp)
+
+Saved plot: equation_of_state.png
+
+============================================================
+Equation of state calculation complete!
+============================================================
+
+Key points:
+  - E(V) curves reveal equilibrium properties
+  - Bulk modulus measures resistance to compression
+  - PBE typically underestimates B by 5-10%
+  - More points and larger strain range improve fits
+
+Next: Try 05_density_of_states/ to analyze electronic structure.
