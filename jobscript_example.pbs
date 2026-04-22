@@ -1,0 +1,93 @@
+########################################################################
+# This is a standard jobscript on my cluster. Just adjust the part 
+# that tells ASE to run VASP.
+########################################################################
+
+#!/bin/bash
+#PBS -A YOUR_USERNAME
+#PBS -N ASE_vasp #JOBNAME
+#PBS -l select=1:ncpus=12:mpiprocs=12:mem=16GB  # Required Compute resources
+#PBS -q chem-2 #The que, use qstat -q to see avaialble
+#PBS -l walltime=00:10:00  # Estimated Wall time
+#PBS -j oe
+#PBS -o vasp_job.out  #Outputfile name.
+
+echo "=========================================="
+echo "Job started on $(date)"
+echo "Running on nodes:"
+cat $PBS_NODEFILE
+echo "=========================================="
+
+########################################################################
+# Load environment 
+########################################################################
+source /opt/ohpc/pub/apps/intel-2025.2/setvars.sh --force > /dev/null
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/ohpc/pub/apps/hdf5_1.14.6_intel_2025.2/lib:/opt/ohpc/pub/apps/libaec_1.1.4_intel_2025.2/lib
+export PATH=$PATH:/opt/ohpc/pub/apps/hdf5_1.14.6_intel_2025.2/bin
+export PATH=$PATH:/opt/ohpc/pub/apps/vasp_6.4.0_intel_2025.2/mpi
+
+########################################################################
+# MPI settings
+########################################################################
+NPROCS=$(cat $PBS_NODEFILE | wc -l)
+echo "Total MPI processes: $NPROCS"
+
+########################################################################
+# Scratch setup
+########################################################################
+SCRATCH=/PATH_HERE   #Adjust this part to your scratch directory
+mkdir -p $SCRATCH
+
+echo "Scratch directory: $SCRATCH"
+
+# Save job info
+echo "Scratch directory: $SCRATCH" > "$PBS_O_WORKDIR/job_info_${PBS_JOBID}.txt"
+echo "Job ID: $PBS_JOBID" >> "$PBS_O_WORKDIR/job_info_${PBS_JOBID}.txt"
+echo "Created at: $(date)" >> "$PBS_O_WORKDIR/job_info_${PBS_JOBID}.txt"
+
+cp "$PBS_O_WORKDIR/job_info_${PBS_JOBID}.txt" "$SCRATCH/"
+
+# Copy input files
+cp -r $PBS_O_WORKDIR/* $SCRATCH/
+cd $SCRATCH
+
+########################################################################
+# This part should be in the script which tells ASE to run VASP.
+########################################################################
+
+export VASP_PP_PATH=/home/USERNAME/bin   ##Check your system for correct path
+export ASE_VASP_COMMAND="mpiexec.hydra -np $NPROCS vasp_std"
+
+echo "ASE will use command:"
+echo $ASE_VASP_COMMAND
+
+########################################################################
+# Run ASE script (this launches VASP)
+########################################################################
+echo "Starting ASE calculation at $(date)"
+python 01_getting_started.py > ase_01.out   ##The name of your python code and the name intended for the output
+echo "ASE finished at $(date)"
+
+########################################################################
+# Copy results back
+########################################################################
+echo "Copying results back..."
+rsync -av $SCRATCH/ $PBS_O_WORKDIR/
+
+########################################################################
+# Cleanup (optional)
+########################################################################
+if [ $? -eq 0 ]; then
+    cd $PBS_O_WORKDIR
+    # Uncomment next line if you want auto-clean
+    # rm -rf $SCRATCH
+    echo "Job $PBS_JOBID finished successfully"
+else
+    echo "Job $PBS_JOBID failed"
+fi
+
+echo "=========================================="
+echo "Job ended on $(date)"
+echo "=========================================="
+
